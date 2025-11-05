@@ -1,0 +1,180 @@
+#root {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ebf8ff 0%, #cfdfff 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  
+  .container {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    padding: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    
+    .main-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      
+      .counter-section, .chat-section {
+        flex: 1;
+        min-width: 300px;
+        background-color: #f3f4f6;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+      }
+      
+      .counter-section {
+        .card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          
+          .count-button {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            
+            &:hover {
+              background-color: #2563eb;
+            }
+          }
+          
+          p {
+            color: #374151;
+            font-size: 1.1rem;
+            
+          }
+        }
+      }
+      
+      .chat-section {
+        h2 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #1f2937;
+          margin-top: 0;
+          margin-bottom: 1.5rem;
+        }
+        
+        .input-group {
+          display: flex;
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+          
+          input {
+            flex: 1;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            outline: none;
+            font-size: 1rem;
+            
+            &:focus {
+              ring: 2px solid #3b82f6;
+            }
+          }
+          
+          .add-button {
+            background-color: #10b981;
+            color: white;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            
+            &:hover {
+              background-color: #059669;
+            }
+          }
+        }
+        
+        .clear-button {
+          background-color: #ef4444;
+          color: white;
+          font-weight: bold;
+          padding: 0.75rem 1.5rem;
+          border-radius: 0.5rem;
+          transition: background-color 0.3s;
+          border: none;
+          cursor: pointer;
+          font-size: 1rem;
+          margin-bottom: 1.5rem;
+          
+          &:hover {
+            background-color: #dc2626;
+          }
+        }
+        
+        .messages-container {
+          background-color: #e5e7eb;
+          border-radius: 0.5rem;
+          padding: 1rem;
+          max-height: 300px;
+          overflow-y: auto;
+          
+          .no-messages {
+            color: #6b7280;
+            font-style: italic;
+            text-align: center;
+            padding: 1rem;
+          }
+          
+          ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            
+            li {
+              color: #374151;
+              background: white;
+              padding: 0.75rem;
+              border-radius: 0.25rem;
+              margin-bottom: 0.5rem;
+              
+              &:last-child {
+                margin-bottom: 0;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .footer {
+    color: #4b5563;
+    margin-top: 2rem;
+    font-size: 1.1rem;
+  }
+}

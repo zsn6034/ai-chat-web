@@ -1,13 +1,16 @@
-import styles from './index.module.less'
+import styles from './index.module.less';
+import InputArea from './InputArea';
+import MessageArea from './MessageArea';
 
-interface ChatContainer {
-}
+interface ChatContainerProps {}
 
 const ChatContainer = () => {
-  
   return (
-    <div>111</div>
+    <div className={styles.chatContainer}>
+      <MessageArea />
+      <InputArea />
+    </div>
   );
-}
+};
 
 export default ChatContainer;

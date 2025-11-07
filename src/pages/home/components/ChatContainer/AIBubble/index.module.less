@@ -1,0 +1,37 @@
+.aiBubble {
+  padding: 12px;
+  border-radius: 8px;
+  max-width: 80%;
+  margin: 8px auto 8px 0;
+  text-align: left;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  clear: both;
+  float: left;
+  background-color: #f7f7f8;
+  color: #333;
+}
+
+[data-effect='typing'] {
+  position: relative;
+  overflow: hidden;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  ol:last-child li,
+  ul:last-child li {
+    &:last-child:after {
+      content: '';
+      width: 80px;
+      height: 1.5em;
+      background: linear-gradient(90deg, transparent, #fff);
+      position: absolute;
+      margin-left: -80px;
+    }
+  }
+}

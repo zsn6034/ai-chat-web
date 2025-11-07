@@ -10,7 +10,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   // 获取自定义主题变量
-  const customTheme = useMemo(() => {
+  const customThemeVar = useMemo(() => {
     // 强制在读取变量前应用主题
     document.documentElement.setAttribute('data-theme', theme);
     const rootStyles = getComputedStyle(document.documentElement);
@@ -34,7 +34,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         theme={{
           // 全局token
           token: {
-            colorPrimary: customTheme.colorPrimary,
+            colorPrimary: customThemeVar.colorPrimary,
           },
           // 组件token
           components: {
@@ -42,6 +42,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
               primaryShadow: '',
             },
             Switch: {},
+            Input: {
+              activeShadow: '',
+            },
           },
         }}
       >

@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import styles from './index.module.less';
 import { useSessionStore } from '@/stores/sessionStore';
 import { useMessageStore } from '@/stores/messageStore';
@@ -6,34 +5,13 @@ import type { Message } from '@/types/message';
 import { Empty } from 'antd';
 
 const SessionList = () => {
-  const { curSessionId, sessionList, setCurSessionId, setSessionList } =
-    useSessionStore();
+  const { curSessionId, sessionList, setCurSessionId } = useSessionStore();
   const { setMessageList } = useMessageStore();
-
-  // 加载会话列表
-  useEffect(() => {
-    try {
-      const cacheSessionList: Session[] = JSON.parse(
-        localStorage.getItem('SESSION_LIST') || '[]'
-      );
-      setSessionList(cacheSessionList);
-      if (cacheSessionList.length > 0) {
-        setCurSessionId(cacheSessionList[0].sessionId);
-        const cacheMessageList: Message[] = JSON.parse(
-          localStorage.getItem(
-            `MESSION_LIST_${cacheSessionList[0].sessionId}`
-          ) || '[]'
-        );
-        setMessageList(cacheMessageList);
-      }
-    } catch (error) {
-      console.error('Load Error parsing sessionList from localStorage:', error);
-    }
-  }, []);
 
   // 切换会话
   const handleSelect = (sessionId: string) => {
     setCurSessionId(sessionId);
+    // 从缓存中恢复
     try {
       const cacheMessageList: Message[] = JSON.parse(
         localStorage.getItem(`MESSION_LIST_${sessionId}`) || '[]'

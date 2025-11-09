@@ -3,8 +3,8 @@ import { create } from 'zustand';
 
 interface MessageState {
   messageList: Message[];
-  getInitMessage: (modleId: string) => Message;
-  resetMessageList: (modleId: string) => void;
+  getInitMessage: (modelId: string) => Message;
+  resetMessageList: (modelId: string) => void;
   addMessage: (message: Message) => void;
   setMessageList: (messageList: Message[]) => void;
   appendContent: (chunk: string) => void;
@@ -12,15 +12,15 @@ interface MessageState {
 
 export const useMessageStore = create<MessageState>()((set) => ({
   messageList: [],
-  getInitMessage: (modleId: string) => ({
+  getInitMessage: (modelId: string) => ({
     role: 'assistant',
     content: '你好，你可以问我任何问题，我会如数帮你解答~',
-    modleId: modleId,
+    modelId,
     messageId: Date.now().toString(),
   }),
-  resetMessageList: (modleId: string) => {
+  resetMessageList: (modelId: string) => {
     set((state) => ({
-      messageList: [state.getInitMessage(modleId)],
+      messageList: [state.getInitMessage(modelId)],
     }));
   },
   addMessage: (message) =>

@@ -8,7 +8,7 @@ import { useModelStore } from '@/stores/modelStore';
 const SessionList = () => {
   const { sessionList, addSession, setCurSessionId } = useSessionStore();
   const { getInitMessage, resetMessageList } = useMessageStore();
-  const { curModelId } = useModelStore();
+  const { modelId } = useModelStore();
   const handleAddSession = () => {
     const newSession = { sessionId: Date.now().toString() };
     addSession(newSession);
@@ -20,11 +20,11 @@ const SessionList = () => {
         JSON.stringify([newSession, ...sessionList])
       );
       // 重置消息列表
-      resetMessageList(curModelId);
+      resetMessageList(modelId);
       // 缓存持久化：消息列表
       localStorage.setItem(
         `MESSION_LIST_${newSession.sessionId}`,
-        JSON.stringify([getInitMessage(curModelId)])
+        JSON.stringify([getInitMessage(modelId)])
       );
     } catch (error) {
       console.error(

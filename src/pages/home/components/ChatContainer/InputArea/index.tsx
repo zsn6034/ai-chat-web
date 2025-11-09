@@ -1,32 +1,54 @@
 import { useState } from 'react';
 import { Button, Select, Input } from 'antd';
-import { SendOutlined } from '@ant-design/icons';
+import { SendOutlined, PauseCircleFilled } from '@ant-design/icons';
 import styles from './index.module.less';
-import { useRequest } from '@/hooks/useRequest';
 import { useMessageStore } from '@/stores/messageStore';
 import type { Message } from '@/types/message';
 import { MODEL_OPTIONS } from '@/const/model';
 import { useModelStore } from '@/stores/modelStore';
 import { useSessionStore } from '@/stores/sessionStore';
 import { sleep } from '@/utils';
-const InputArea = () => {
+import type { ApiMessage, RequestOptions } from '@/types/api';
+import { useChatStore } from '@/stores/chatStore';
+
+interface InputAreaProps {
+  newAnswer: React.RefObject<string>;
+  requestLLM: (
+    modelId: string,
+    messages: ApiMessage[],
+    options: RequestOptions
+  ) => Promise<void>;
+  stopRequest: () => void;
+}
+const InputArea: React.FC<InputAreaProps> = ({
+  newAnswer,
+  requestLLM,
+  stopRequest,
+}) => {
   const [inputValue, setInputValue] = useState('');
   const { curSessionId } = useSessionStore();
   const { messageList, addMessage } = useMessageStore();
-  const { curModelId, setCurModelId } = useModelStore();
-  const { requestLLM, answer } = useRequest();
+  const { modelId, setModelId } = useModelStore();
+  const { isThinking, isTyping, setIsThinking, setIsTyping } = useChatStore();
+  const { config } = useModelStore();
+
+  const handleStop = async () => {
+    await stopRequest();
+    setIsThinking(false);
+    setIsTyping(false);
+  };
 
   const handleSend = async () => {
     if (inputValue.trim()) {
       console.log('发送消息:', inputValue);
-      console.log('选中的模型:', curModelId);
+      console.log('选中的模型:', modelId);
       // 清空输入框
       setInputValue('');
       // 加一条用户消息
       const userMessage: Message = {
         role: 'user',
         content: inputValue,
-        modleId: curModelId,
+        modelId,
         messageId: Date.now().toString(),
       };
       addMessage(userMessage);
@@ -36,14 +58,14 @@ const InputArea = () => {
       const aiMessage: Message = {
         role: 'assistant',
         content: '',
-        modleId: curModelId,
+        modelId,
         messageId: Date.now().toString(),
       };
       addMessage(aiMessage);
       // 调用SSE
-      await requestLLM(curModelId, [...messageList, userMessage], {
-        max_tokens: 1024,
-        temperature: 0.2,
+      await requestLLM(modelId, [...messageList, userMessage], {
+        max_tokens: config.max_tokens,
+        temperature: config.temperature,
       });
       // 缓存持久化：消息列表
       localStorage.setItem(
@@ -51,7 +73,7 @@ const InputArea = () => {
         JSON.stringify([
           ...messageList,
           userMessage,
-          { ...aiMessage, content: answer.current },
+          { ...aiMessage, content: newAnswer.current },
         ])
       );
     }
@@ -76,21 +98,32 @@ const InputArea = () => {
       />
       <div className={styles.bottom}>
         <Select
-          value={curModelId}
-          onChange={setCurModelId}
+          value={modelId}
+          onChange={setModelId}
           options={MODEL_OPTIONS}
           size="small"
           className={styles.modelSelect}
         />
-        <Button
-          className={styles.sendButton}
-          type="primary"
-          icon={<SendOutlined />}
-          onClick={handleSend}
-          disabled={!inputValue.trim()}
-        >
-          发送
-        </Button>
+        {isThinking || isTyping ? (
+          <Button
+            className={styles.pauseButton}
+            type="primary"
+            icon={<PauseCircleFilled />}
+            onClick={handleStop}
+          >
+            停止
+          </Button>
+        ) : (
+          <Button
+            className={styles.sendButton}
+            type="primary"
+            icon={<SendOutlined />}
+            onClick={handleSend}
+            disabled={!inputValue.trim()}
+          >
+            发送
+          </Button>
+        )}
       </div>
     </div>
   );

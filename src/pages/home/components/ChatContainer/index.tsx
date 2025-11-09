@@ -2,24 +2,23 @@ import { useSessionStore } from '@/stores/sessionStore';
 import styles from './index.module.less';
 import InputArea from './InputArea';
 import MessageArea from './MessageArea';
-import { useEffect } from 'react';
 import { Empty } from 'antd';
-
-interface ChatContainerProps {}
+import { useRequest } from '@/hooks/useRequest';
 
 const ChatContainer = () => {
   const { sessionList } = useSessionStore();
-
-  useEffect(() => {
-    console.log('ChatContainer...');
-  }, []);
+  const { answer, requestLLM, stop } = useRequest();
 
   return (
     <div className={styles.chatContainer}>
       {sessionList.length > 0 ? (
         <>
-          <MessageArea />
-          <InputArea />
+          <MessageArea newAnswer={answer} requestLLM={requestLLM} />
+          <InputArea
+            newAnswer={answer}
+            requestLLM={requestLLM}
+            stopRequest={stop}
+          />
         </>
       ) : (
         <Empty

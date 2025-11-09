@@ -1,41 +1,51 @@
 import { useRef } from 'react';
-import { ARK_API_KEY } from '@/config/model';
 import { useChatStore } from '@/stores/chatStore';
 import { useMessageStore } from '@/stores/messageStore';
-import type { RequestOptions, RequestParams, ResponseData } from '@/types/api';
+import type {
+  ApiMessage,
+  RequestOptions,
+  RequestParams,
+  ResponseData,
+} from '@/types/api';
 import { sleep } from '@/utils';
+import { ARK_API_URL } from '@/const/model';
+import { useModelStore } from '@/stores/modelStore';
 
 export const useRequest = () => {
   const answer = useRef('');
-  const { setIsThinking } = useChatStore();
+  const { setIsThinking, setIsTyping } = useChatStore();
   const { appendContent } = useMessageStore();
+  const { config } = useModelStore();
+
+  // 创建新的控制器
+  const controller = useRef<AbortController>(null);
   const requestLLM = async (
-    modleId: string,
-    messages: any[],
+    modelId: string,
+    messages: ApiMessage[],
     options: RequestOptions
   ) => {
     setIsThinking(true);
     answer.current = '';
     const params: RequestParams = {
       messages,
-      model: modleId,
+      model: modelId,
       stream: true,
       ...options,
     };
-    const response = await fetch(
-      'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${ARK_API_KEY}`,
-        },
-        body: JSON.stringify(params),
-      }
-    );
+    controller.current = new AbortController();
+    const response = await fetch(ARK_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.apikey}`,
+      },
+      body: JSON.stringify(params),
+      signal: controller.current.signal,
+    });
     // 模拟延迟2秒，确保能展示『正在思考...』
     await sleep(2000);
     setIsThinking(false);
+    setIsTyping(true);
     // console.log('r=', response);
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
@@ -57,7 +67,7 @@ export const useRequest = () => {
               const data = JSON.parse(dataStr) as ResponseData;
               const chunk = data.choices.map((c) => c.delta.content).join('');
               appendContent(chunk);
-              answer.current = answer.current + chunk;
+              answer.current += chunk;
             } catch (parseError) {
               console.error('Error parsing JSON:', parseError);
             }
@@ -68,11 +78,21 @@ export const useRequest = () => {
       console.error('Error reading stream:', error);
     } finally {
       reader?.releaseLock();
+      setIsTyping(false);
+    }
+  };
+
+  const stop = () => {
+    try {
+      controller.current?.abort();
+    } catch (error) {
+      console.error('Error stopping stream:', error);
     }
   };
 
   return {
-    requestLLM,
     answer,
+    requestLLM,
+    stop,
   };
 };

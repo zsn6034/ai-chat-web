@@ -7,9 +7,10 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface AIBubbleProps {
   text: string;
+  isStreaming?: boolean;
 }
 
-const AIBubble: React.FC<AIBubbleProps> = ({ text }) => {
+const AIBubble: React.FC<AIBubbleProps> = ({ text, isStreaming = false }) => {
   // 参考chatui的实现：https://github.com/alibaba/ChatUI/blob/master/src/components/TypingBubble/index.tsx
   const { typedContent, isTyping } = useTypewriter(text, { interval: 10 });
   const effect = isTyping ? 'typing' : null;
@@ -37,8 +38,7 @@ const AIBubble: React.FC<AIBubbleProps> = ({ text }) => {
           },
         }}
       >
-        {/* {typedContent} */}
-        {text}
+        {isStreaming ? typedContent : text}
       </ReactMarkdown>
     </div>
   );

@@ -2,17 +2,58 @@ import { useState } from 'react';
 import { Button, Select, Input } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
 import styles from './index.module.less';
-
+import { useRequest } from '@/hooks/useRequest';
+import { useMessageStore } from '@/stores/messageStore';
+import type { Message } from '@/types/message';
+import { MODEL_OPTIONS } from '@/const/model';
+import { useModelStore } from '@/stores/modelStore';
+import { useSessionStore } from '@/stores/sessionStore';
+import { sleep } from '@/utils';
 const InputArea = () => {
   const [inputValue, setInputValue] = useState('');
-  const [selectedModel, setSelectedModel] = useState('gpt-4');
+  const { curSessionId } = useSessionStore();
+  const { messageList, addMessage } = useMessageStore();
+  const { curModelId, setCurModelId } = useModelStore();
+  const { requestLLM, answer } = useRequest();
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (inputValue.trim()) {
-      // 这里处理发送逻辑
       console.log('发送消息:', inputValue);
-      console.log('选中的模型:', selectedModel);
-      setInputValue(''); // 清空输入框
+      console.log('选中的模型:', curModelId);
+      // 清空输入框
+      setInputValue('');
+      // 加一条用户消息
+      const userMessage: Message = {
+        role: 'user',
+        content: inputValue,
+        modleId: curModelId,
+        messageId: Date.now().toString(),
+      };
+      addMessage(userMessage);
+      // 延迟100毫秒，确保messageId不一样
+      await sleep(100);
+      // 加一条AI消息
+      const aiMessage: Message = {
+        role: 'assistant',
+        content: '',
+        modleId: curModelId,
+        messageId: Date.now().toString(),
+      };
+      addMessage(aiMessage);
+      // 调用SSE
+      await requestLLM(curModelId, [...messageList, userMessage], {
+        max_tokens: 1024,
+        temperature: 0.2,
+      });
+      // 缓存持久化：消息列表
+      localStorage.setItem(
+        `MESSION_LIST_${curSessionId}`,
+        JSON.stringify([
+          ...messageList,
+          userMessage,
+          { ...aiMessage, content: answer.current },
+        ])
+      );
     }
   };
 
@@ -22,11 +63,6 @@ const InputArea = () => {
       handleSend();
     }
   };
-
-  const modelOptions = [
-    { value: 'gpt-4', label: 'GPT-4' },
-    { value: 'claude-3', label: 'Claude-3' },
-  ];
 
   return (
     <div className={styles.inputArea}>
@@ -40,9 +76,9 @@ const InputArea = () => {
       />
       <div className={styles.bottom}>
         <Select
-          value={selectedModel}
-          onChange={setSelectedModel}
-          options={modelOptions}
+          value={curModelId}
+          onChange={setCurModelId}
+          options={MODEL_OPTIONS}
           size="small"
           className={styles.modelSelect}
         />

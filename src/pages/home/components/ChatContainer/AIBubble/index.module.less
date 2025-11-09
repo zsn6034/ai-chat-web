@@ -10,6 +10,33 @@
   float: left;
   background-color: #f7f7f8;
   color: #333;
+
+  // 减少 Markdown 元素之间的垂直间距
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  ul,
+  ol,
+  pre,
+  blockquote {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  // 为列表元素设置更紧凑的间距
+  li {
+    margin-bottom: 4px;
+  }
+
+  // 代码块间距调整
+  pre {
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
 }
 
 [data-effect='typing'] {

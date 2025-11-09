@@ -10,7 +10,7 @@ const getRandomInt = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-export function useTypewriter(content: string, options: Options = {}) {
+export const useTypewriter = (content: string, options: Options = {}) => {
   const { interval = 60, step = 1, initialIndex = 5 } = options;
   const length = content.length;
 
@@ -36,4 +36,4 @@ export function useTypewriter(content: string, options: Options = {}) {
     typedContent: content.slice(0, index),
     isTyping: index < length,
   };
-}
+};

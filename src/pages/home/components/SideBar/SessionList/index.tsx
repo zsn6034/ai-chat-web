@@ -1,52 +1,74 @@
-import { useState } from 'react'
-import styles from './index.module.less'
+import { useEffect } from 'react';
+import styles from './index.module.less';
+import { useSessionStore } from '@/stores/sessionStore';
+import { useMessageStore } from '@/stores/messageStore';
+import type { Message } from '@/types/message';
+import { Empty } from 'antd';
 
-interface Session {
-  id: string
-  title: string
-}
+const SessionList = () => {
+  const { curSessionId, sessionList, setCurSessionId, setSessionList } =
+    useSessionStore();
+  const { setMessageList } = useMessageStore();
 
-const SessionList= () => {
-  const [sessions, setSessions] = useState<Session[]>([
-    { id: '1', title: '会话 1' },
-    { id: '2', title: '会话 2' },
-    { id: '3', title: '会话 3' },
-    { id: '4', title: '会话 4' },
-    { id: '5', title: '会话 5' },
-    { id: '6', title: '会话 6' },
-    { id: '7', title: '会话 7' },
-    { id: '8', title: '会话 8' },
-    { id: '9', title: '会话 9' },
-    { id: '10', title: '会话 10' },
-    { id: '11', title: '会话 11' },
-    { id: '12', title: '会话 12' },
-    { id: '13', title: '会话 13' },
-    { id: '14', title: '会话 14' },
-    { id: '15', title: '会话 15' },
-    { id: '16', title: '会话 16' },
-    { id: '17', title: '会话 17' },
-    { id: '18', title: '会话 18' },
-    { id: '19', title: '会话 19' },
-    { id: '20', title: '会话 20' },
-  ])
+  // 加载会话列表
+  useEffect(() => {
+    try {
+      const cacheSessionList: Session[] = JSON.parse(
+        localStorage.getItem('SESSION_LIST') || '[]'
+      );
+      setSessionList(cacheSessionList);
+      if (cacheSessionList.length > 0) {
+        setCurSessionId(cacheSessionList[0].sessionId);
+        const cacheMessageList: Message[] = JSON.parse(
+          localStorage.getItem(
+            `MESSION_LIST_${cacheSessionList[0].sessionId}`
+          ) || '[]'
+        );
+        setMessageList(cacheMessageList);
+      }
+    } catch (error) {
+      console.error('Load Error parsing sessionList from localStorage:', error);
+    }
+  }, []);
 
-  const [activeSession, setActiveSession] = useState<string>('1')
+  // 切换会话
+  const handleSelect = (sessionId: string) => {
+    setCurSessionId(sessionId);
+    try {
+      const cacheMessageList: Message[] = JSON.parse(
+        localStorage.getItem(`MESSION_LIST_${sessionId}`) || '[]'
+      );
+      setMessageList(cacheMessageList);
+    } catch (error) {
+      console.error(
+        'HandleSelect Error parsing sessionList from localStorage:',
+        error
+      );
+    }
+  };
 
   return (
     <div className={styles.sessionList}>
-      {sessions.map((session) => (
-        <div
-          key={session.id}
-          className={`${styles.sessionItem} ${
-            activeSession === session.id ? styles.active : ''
-          }`}
-          onClick={() => setActiveSession(session.id)}
-        >
-          {session.title}
-        </div>
-      ))}
+      {sessionList.length > 0 ? (
+        sessionList.map((session) => (
+          <div
+            key={session.sessionId}
+            className={`${styles.sessionItem} ${
+              curSessionId === session.sessionId ? styles.active : ''
+            }`}
+            onClick={() => handleSelect(session.sessionId)}
+          >
+            {session.sessionId}
+          </div>
+        ))
+      ) : (
+        <Empty
+          className={styles.empty}
+          description="暂无会话，请先新增一个会话"
+        />
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default SessionList
+export default SessionList;

@@ -42,8 +42,8 @@ export const useRequest = () => {
       body: JSON.stringify(params),
       signal: controller.current.signal,
     });
-    // 模拟延迟2秒，确保能展示『正在思考...』
-    await sleep(2000);
+    // 模拟延迟1秒，确保能展示『正在思考...』
+    await sleep(1000);
     setIsThinking(false);
     setIsTyping(true);
     // console.log('r=', response);

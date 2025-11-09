@@ -13,7 +13,7 @@ interface AIBubbleProps {
 const AIBubble: React.FC<AIBubbleProps> = ({ text, isStreaming = false }) => {
   // 参考chatui的实现：https://github.com/alibaba/ChatUI/blob/master/src/components/TypingBubble/index.tsx
   const { typedContent, isTyping } = useTypewriter(text, { interval: 10 });
-  const effect = isTyping ? 'typing' : null;
+  const effect = isStreaming && isTyping ? 'typing' : null;
 
   return (
     <div className={styles.aiBubble} data-effect={effect}>

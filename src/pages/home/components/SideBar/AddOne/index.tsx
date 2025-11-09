@@ -4,11 +4,20 @@ import { useSessionStore } from '@/stores/sessionStore';
 import { PlusOutlined } from '@ant-design/icons';
 import { useMessageStore } from '@/stores/messageStore';
 import { useModelStore } from '@/stores/modelStore';
+import { useChatStore } from '@/stores/chatStore';
+import { useMemo } from 'react';
 
 const SessionList = () => {
   const { sessionList, addSession, setCurSessionId } = useSessionStore();
   const { getInitMessage, resetMessageList } = useMessageStore();
   const { modelId } = useModelStore();
+  const { isThinking, isTyping } = useChatStore();
+
+  const isDisable = useMemo(
+    () => isThinking || isTyping,
+    [isThinking, isTyping]
+  );
+
   const handleAddSession = () => {
     const newSession = { sessionId: Date.now().toString() };
     addSession(newSession);
@@ -41,6 +50,7 @@ const SessionList = () => {
         type="primary"
         icon={<PlusOutlined />}
         onClick={handleAddSession}
+        disabled={isDisable}
       >
         新增会话
       </Button>

@@ -17,6 +17,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     return {
       colorPrimary:
         rootStyles.getPropertyValue('--bg-primary').trim() || '#eb3434',
+      textPrimaryColor:
+        rootStyles.getPropertyValue('--text-primary').trim() || '#f9fafb',
     };
   }, [theme]);
 
@@ -44,6 +46,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
             Switch: {},
             Input: {
               activeShadow: '',
+            },
+            Select: {
+              optionSelectedColor: customThemeVar.textPrimaryColor,
             },
           },
         }}

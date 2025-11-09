@@ -66,7 +66,7 @@ const MessageArea: React.FC<MessageAreaProps> = ({ newAnswer, requestLLM }) => {
         return null;
       })}
       {isThinking && <ThinkBubble />}
-      {!isThinking && messageList.length > 2 && (
+      {!isThinking && !isTyping && messageList.length > 2 && (
         <Button className={styles.retry} type="link" onClick={handleRetry}>
           重新生成
         </Button>

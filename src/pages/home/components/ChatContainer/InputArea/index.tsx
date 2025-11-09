@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button, Select, Input } from 'antd';
 import { SendOutlined, PauseCircleFilled } from '@ant-design/icons';
 import styles from './index.module.less';
@@ -31,6 +31,7 @@ const InputArea: React.FC<InputAreaProps> = ({
   const { modelId, setModelId } = useModelStore();
   const { isThinking, isTyping, setIsThinking, setIsTyping } = useChatStore();
   const { config } = useModelStore();
+  const isCompositionRef = useRef(false);
 
   const handleStop = async () => {
     await stopRequest();
@@ -80,10 +81,22 @@ const InputArea: React.FC<InputAreaProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !isCompositionRef.current) {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handleCompositionStart = () => {
+    isCompositionRef.current = true;
+  };
+
+  const handleCompositionEnd = (
+    e: React.CompositionEvent<HTMLTextAreaElement>
+  ) => {
+    isCompositionRef.current = false;
+    // 更新输入值为最终确认的值
+    setInputValue(e.currentTarget.value);
   };
 
   return (
@@ -92,6 +105,8 @@ const InputArea: React.FC<InputAreaProps> = ({
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
+        onCompositionStart={handleCompositionStart}
+        onCompositionEnd={handleCompositionEnd}
         placeholder="请输入内容，Enter发送，Shift+Enter换行"
         autoSize
         className={styles.textarea}

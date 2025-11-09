@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import styles from './index.module.less';
 import { useTypewriter } from '@/hooks/useTypewriter';

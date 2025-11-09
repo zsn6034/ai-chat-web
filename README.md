@@ -1,73 +1,100 @@
-# React + TypeScript + Vite
+# AI Chat Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一个基于 React 和 Ant Design 构建的 AI 聊天应用程序，支持与大语言模型进行对话交互。
 
-Currently, two official plugins are available:
+## 功能介绍
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🤖 AI 对话：与各种大语言模型进行实时对话
+- 💬 消息流：支持流式消息接收，提供更好的用户体验
+- 📝 Markdown 渲染：支持 Markdown 格式的富文本消息渲染
+- 💡 代码高亮：内置代码块语法高亮功能
+- 🗂️ 会话管理：创建、删除和切换多个对话会话
+- ⚙️ 模型配置：可配置不同的 AI 模型参数
+- 🌙 主题切换：支持深色/浅色主题模式
+- 💾 数据持久化：本地存储会话和消息数据
 
-## React Compiler
+## 技术栈
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [React 18](https://reactjs.org/) - 前端 UI 框架
+- [TypeScript](https://www.typescriptlang.org/) - JavaScript 的超集，提供类型安全
+- [Vite](https://vitejs.dev/) - 快速的构建工具
+- [Ant Design](https://ant.design/) - React UI 组件库
+- [Zustand](https://github.com/pmndrs/zustand) - 轻量级状态管理
+- [Less](https://lesscss.org/) - CSS 预处理器
+- [React Markdown](https://remarkjs.github.io/react-markdown/) - Markdown 渲染组件
+- [React Syntax Highlighter](https://github.com/react-syntax-highlighter/react-syntax-highlighter) - 代码语法高亮
+- [Vitest](https://vitest.dev/) - 单元测试框架
 
-## Expanding the ESLint configuration
+## 开发指南
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 环境要求
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js >= 16
+- pnpm >= 8
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 安装依赖
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 启动开发服务器
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+pnpm dev
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+默认情况下，应用将在 http://localhost:5173 上运行。
+
+### 构建生产版本
+
+```bash
+pnpm build
+```
+
+构建后的文件将位于 `dist` 目录中。
+
+### 代码检查
+
+```bash
+pnpm lint
+```
+
+### 运行测试
+
+```bash
+# 运行测试（监听模式）
+pnpm test
+
+# 运行测试（单次执行）
+pnpm test:run
+
+# 运行测试（UI 模式）
+pnpm test:ui
+```
+
+## 部署说明
+
+1. 构建项目：
+   ```bash
+   pnpm build
+   ```
+
+2. 将 `dist` 目录中的文件部署到您的 Web 服务器或静态网站托管服务（如 Vercel、Netlify、GitHub Pages 等）。
+
+3. 配置环境变量（如果需要）：
+   - `VITE_API_KEY`: API 密钥
+   - 其他相关环境变量根据实际需求配置
+
+## 项目结构
+
+```
+src/
+├── components/       # 公共组件
+├── hooks/            # 自定义 Hooks
+├── pages/            # 页面组件
+├── stores/           # Zustand 状态管理
+├── types/            # TypeScript 类型定义
+├── utils/            # 工具函数
+└── const/            # 常量定义
 ```

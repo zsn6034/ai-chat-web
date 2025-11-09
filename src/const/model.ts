@@ -5,6 +5,14 @@ export const MODEL_OPTIONS = [
   { value: 'doubao-seed-1-6-251015', label: 'Doubao-Seed-1.6' },
 ];
 
+export const MODEL_MAP = MODEL_OPTIONS.reduce(
+  (acc, curr) => {
+    acc[curr.value] = curr.label;
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
 export const DEFALUT_MODEL_CONFIG: ModelConfig = {
   apikey: '', // 需要用户填写
   max_tokens: 1024,

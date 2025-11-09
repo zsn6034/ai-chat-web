@@ -8,6 +8,7 @@ import { useModelStore } from '@/stores/modelStore';
 import { useSessionStore } from '@/stores/sessionStore';
 import { Button } from 'antd';
 import type { ApiMessage, RequestOptions } from '@/types/api';
+import { MODEL_MAP } from '@/const/model';
 
 interface MessageAreaProps {
   newAnswer: React.RefObject<string>;
@@ -56,11 +57,16 @@ const MessageArea: React.FC<MessageAreaProps> = ({ newAnswer, requestLLM }) => {
         }
         if (message.role === 'assistant' && message.content.length > 0) {
           return (
-            <AIBubble
-              key={message.messageId}
-              text={message.content}
-              isStreaming={index === messageList.length - 1 && isTyping}
-            />
+            <>
+              <div className={styles.modelName}>
+                模型名称：{MODEL_MAP[message.modelId]}
+              </div>
+              <AIBubble
+                key={message.messageId}
+                text={message.content}
+                isStreaming={index === messageList.length - 1 && isTyping}
+              />
+            </>
           );
         }
         return null;

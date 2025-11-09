@@ -18,7 +18,7 @@ export const useRequest = () => {
   const { config } = useModelStore();
 
   // 创建新的控制器
-  const controller = useRef<AbortController>(null);
+  const controller = useRef<AbortController | null>(null);
   const requestLLM = async (
     modelId: string,
     messages: ApiMessage[],

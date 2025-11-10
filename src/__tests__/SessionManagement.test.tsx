@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as sessionStore from '../stores/sessionStore';
 import * as messageStore from '../stores/messageStore';
 import * as chatStore from '../stores/chatStore';
-import * as modelStore from '../stores/modelStore';
+import AddOne from '../pages/home/components/SideBar/AddOne';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -50,55 +50,6 @@ vi.mock('antd', async (importOriginal) => {
 vi.mock('@ant-design/icons', () => ({
   PlusOutlined: () => <span>+</span>,
 }));
-
-// 模拟 AddOne 组件
-const AddOne = () => {
-  const { sessionList, addSession, setCurSessionId } =
-    sessionStore.useSessionStore();
-  const { getInitMessage, resetMessageList } = messageStore.useMessageStore();
-  const { modelId } = modelStore.useModelStore();
-  const { isThinking, isTyping } = chatStore.useChatStore();
-
-  const isDisable = isThinking || isTyping;
-
-  const handleAddSession = () => {
-    if (isDisable) return;
-    const newSession = { sessionId: Date.now().toString() };
-    addSession(newSession);
-    setCurSessionId(newSession.sessionId);
-    try {
-      // 缓存持久化：会话列表
-      localStorage.setItem(
-        'SESSION_LIST',
-        JSON.stringify([newSession, ...sessionList])
-      );
-      // 重置消息列表
-      resetMessageList(modelId);
-      // 缓存持久化：消息列表
-      localStorage.setItem(
-        `MESSION_LIST_${newSession.sessionId}`,
-        JSON.stringify([getInitMessage(modelId)])
-      );
-    } catch (error) {
-      console.error(
-        'HandleAddSession Error saving sessionList to localStorage:',
-        error
-      );
-    }
-  };
-
-  return (
-    <div>
-      <button
-        data-testid="add-session-button"
-        onClick={handleAddSession}
-        disabled={isDisable}
-      >
-        新增会话
-      </button>
-    </div>
-  );
-};
 
 describe('Session Management', () => {
   beforeEach(() => {

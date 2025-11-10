@@ -11,6 +11,7 @@ import * as messageStore from '../stores/messageStore';
 import * as chatStore from '../stores/chatStore';
 import * as modelStore from '../stores/modelStore';
 import * as sessionStore from '../stores/sessionStore';
+import InputArea from '../pages/home/components/ChatContainer/InputArea';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -82,137 +83,6 @@ vi.mock('@ant-design/icons', () => ({
   PauseCircleFilled: () => <span>Pause</span>,
 }));
 
-// 模拟 InputArea 组件
-const InputArea = ({ newAnswer, requestLLM, stopRequest }: any) => {
-  const [inputValue, setInputValue] = React.useState('');
-  const { curSessionId } = sessionStore.useSessionStore();
-  const { messageList, addMessage } = messageStore.useMessageStore();
-  const { modelId, setModelId } = modelStore.useModelStore();
-  const { isThinking, isTyping, setIsThinking, setIsTyping } =
-    chatStore.useChatStore();
-  const { config } = modelStore.useModelStore();
-  const isCompositionRef = React.useRef(false);
-
-  const handleStop = async () => {
-    await stopRequest();
-    setIsThinking(false);
-    setIsTyping(false);
-  };
-
-  const handleSend = async () => {
-    if (inputValue.trim()) {
-      // 清空输入框
-      setInputValue('');
-      // 加一条用户消息
-      const userMessage: any = {
-        role: 'user',
-        content: inputValue,
-        modelId,
-        messageId: Date.now().toString(),
-      };
-      addMessage(userMessage);
-      // 延迟100毫秒，确保messageId不一样
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      // 加一条AI消息
-      const aiMessage: any = {
-        role: 'assistant',
-        content: '',
-        modelId,
-        messageId: Date.now().toString(),
-      };
-      addMessage(aiMessage);
-      // 设置思考状态
-      setIsThinking(true);
-      // 调用SSE
-      try {
-        await requestLLM(modelId, [...messageList, userMessage], {
-          max_tokens: config.max_tokens,
-          temperature: config.temperature,
-        });
-      } finally {
-        // 缓存持久化：消息列表
-        localStorage.setItem(
-          `MESSION_LIST_${curSessionId}`,
-          JSON.stringify([
-            ...messageList,
-            userMessage,
-            { ...aiMessage, content: newAnswer.current },
-          ])
-        );
-        // 结束思考状态
-        setIsThinking(false);
-      }
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && !isCompositionRef.current) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const handleCompositionStart = () => {
-    isCompositionRef.current = true;
-  };
-
-  const handleCompositionEnd = (
-    e: React.CompositionEvent<HTMLTextAreaElement>
-  ) => {
-    isCompositionRef.current = false;
-    // 更新输入值为最终确认的值
-    setInputValue(e.currentTarget.value);
-  };
-
-  // 模拟 MODEL_OPTIONS
-  const MODEL_OPTIONS = [
-    { value: 'deepseek-v3-1-terminus', label: 'DeepSeek-V3' },
-    { value: 'doubao-seed-1-6-251015', label: 'Doubao-Seed-1.6' },
-  ];
-
-  return (
-    <div>
-      <textarea
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onCompositionStart={handleCompositionStart}
-        onCompositionEnd={handleCompositionEnd}
-        placeholder="请输入内容，Enter发送，Shift+Enter换行"
-        data-testid="message-input"
-      />
-      <div>
-        <select
-          value={modelId}
-          onChange={(e) => setModelId(e.target.value)}
-          data-testid="model-select"
-        >
-          {MODEL_OPTIONS.map((option: any) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        {isThinking || isTyping ? (
-          <button data-testid="button-primary" onClick={handleStop}>
-            <span>Pause</span>
-            停止
-          </button>
-        ) : (
-          <button
-            data-testid="button-primary"
-            onClick={handleSend}
-            disabled={!inputValue.trim()}
-          >
-            <span>Send</span>
-            发送
-          </button>
-        )}
-      </div>
-    </div>
-  );
-};
-
 describe('Message Flow', () => {
   beforeEach(() => {
     // 清理 localStorage
@@ -270,7 +140,13 @@ describe('Message Flow', () => {
   it('发送消息后经过一段时间，应该有新的 AI 消息渲染', async () => {
     // 设置 mock 函数模拟延迟
     const mockRequestLLM = vi.fn(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 100)); // 缩短时间以便测试
+      chatStore.useChatStore.getState().setIsThinking(true);
+      await new Promise((resolve) =>
+        setTimeout(() => {
+          chatStore.useChatStore.getState().setIsThinking(false);
+          resolve({});
+        }, 1000)
+      );
     });
     const mockStopRequest = vi.fn();
     const mockNewAnswer = { current: 'Mock AI response' };
@@ -322,7 +198,15 @@ describe('Message Flow', () => {
 
   it('点击停止按钮时应该停止请求', async () => {
     // 模拟长时间运行的请求
-    const mockRequestLLM = vi.fn(() => new Promise(() => {})); // 永远不会解决
+    const mockRequestLLM = vi.fn(async () => {
+      chatStore.useChatStore.getState().setIsThinking(true);
+      await new Promise((resolve) =>
+        setTimeout(() => {
+          chatStore.useChatStore.getState().setIsThinking(false);
+          resolve({});
+        }, 100000)
+      );
+    });
     const mockStopRequest = vi.fn();
     const mockNewAnswer = { current: 'Mock AI response' };
 

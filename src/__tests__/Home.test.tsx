@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as sessionStore from '../stores/sessionStore';
 import * as messageStore from '../stores/messageStore';
+import Home from '../pages/home/index';
 
 // Mock 子组件
 vi.mock('../pages/home/components/SideBar', () => ({
@@ -52,23 +53,23 @@ describe('Home Component', () => {
   });
 
   it('应该在加载时显示 loading 状态', async () => {
-    render(<div role="progressbar">Loading...</div>);
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    render(<Home />);
+    // Home组件初始状态应该显示Spin组件作为loading状态
+    // 通过测试，在加载状态下应该能找到.ant-spin元素
+    expect(document.querySelector('.ant-spin')).toBeInTheDocument();
   });
 
   it('应该在加载完成后显示主界面', async () => {
-    // 模拟一个简单的 Home 组件，因为原始组件有异步逻辑
-    const TestHome = () => (
-      <div>
-        <div data-testid="sidebar">Sidebar</div>
-        <div data-testid="chat-container">ChatContainer</div>
-      </div>
-    );
-
-    render(<TestHome />);
-
-    expect(screen.getByTestId('sidebar')).toBeInTheDocument();
+    render(<Home />);
+    
+    // 等待加载完成，最多等待1.5秒
+    await waitFor(() => {
+      expect(screen.getByTestId('sidebar')).toBeInTheDocument();
+    }, { timeout: 1500 });
+    
     expect(screen.getByTestId('chat-container')).toBeInTheDocument();
+    // 确保loading状态已经消失
+    expect(document.querySelector('.ant-spin')).not.toBeInTheDocument();
   });
 
   it('应该从 localStorage 恢复会话数据', async () => {
@@ -86,12 +87,17 @@ describe('Home Component', () => {
     localStorage.setItem('SESSION_LIST', JSON.stringify(testSessions));
     localStorage.setItem('MESSION_LIST_123', JSON.stringify(testMessages));
 
-    // 验证 store 状态
-    expect(localStorage.getItem('SESSION_LIST')).toEqual(
-      JSON.stringify(testSessions)
-    );
-    expect(localStorage.getItem('MESSION_LIST_123')).toEqual(
-      JSON.stringify(testMessages)
-    );
+    render(<Home />);
+    
+    // 等待数据加载完成
+    await waitFor(() => {
+      expect(sessionStore.useSessionStore.getState().sessionList).toHaveLength(1);
+    }, { timeout: 1500 });
+
+    // 验证 sessionStore 中的值是否正确
+    expect(sessionStore.useSessionStore.getState().sessionList).toEqual(testSessions);
+    
+    // 验证 messageStore 中的值是否正确
+    expect(messageStore.useMessageStore.getState().messageList).toEqual(testMessages);
   });
 });

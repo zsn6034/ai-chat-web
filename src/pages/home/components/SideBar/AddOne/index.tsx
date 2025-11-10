@@ -7,7 +7,7 @@ import { useModelStore } from '@/stores/modelStore';
 import { useChatStore } from '@/stores/chatStore';
 import { useMemo } from 'react';
 
-const SessionList = () => {
+const AddOne = () => {
   const { sessionList, addSession, setCurSessionId } = useSessionStore();
   const { getInitMessage, resetMessageList } = useMessageStore();
   const { modelId } = useModelStore();
@@ -58,4 +58,4 @@ const SessionList = () => {
   );
 };
 
-export default SessionList;
+export default AddOne;
